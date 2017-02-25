@@ -9,7 +9,7 @@ show_usage() {
     echo "usage: buildapk [-d input dir][-o output dir][-f output file]"
     echo "Compile and package android applications."
     echo "Example:"
-    echo "- buildapk -d /sdcard/app -o build -f lol.apk"
+    echo " - buildapk -d /sdcard/app -o build -f lol.apk"
     echo "(None of the aguments required - just execute from same dir as AndroidManifest.xml"
 }
 
@@ -36,6 +36,11 @@ do_build() {
         echo "Error: android.jar not found in $ANDROID_JAR. Aborting..."
         exit 1
     fi
+    
+    type aapt > /dev/null || { echo >&2 "Error: Please install 'aapt'. Aborting..."; exit 1; }
+    type jack > /dev/null || { echo >&2 "Error: Please install 'jack'. Aborting..."; exit 1; }
+    type apksigner > /dev/null || { echo >&2 "Error: Please install 'apksigner'. Aborting..."; exit 1; }
+    
     if [ ! -d $OUTPUT_DIR ]; then
         mkdir $OUTPUT_DIR
     else
@@ -74,9 +79,9 @@ do_build() {
 while true; do
     case "$1" in
         -h|--help) show_usage; exit 0;;
-        -d|--directory) set_in_directory $2; exit 0;;
-        -o|--output) set_out_directory $2; exit 0;;
-        -f|--file) set_out_file $2; exit 0;;
-        *) do_build; exit 1;;
+        -d|--directory) set_in_directory $2; ;;
+        -o|--output) set_out_directory $2; ;;
+        -f|--file) set_out_file $2; ;;
+        *) do_build; ;;
     esac
 done
