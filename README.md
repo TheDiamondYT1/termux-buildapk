@@ -1,5 +1,5 @@
 # termux-buildapk
-A simple build script to quickly build Android apps on [Termux](https://github.com/termux/termux).  
+A simple build script to quickly build Android apps on [Termux](http://termux.com).  
  
 ### How to install  
 I may submit this to the termux package repository, but untill then:  
