@@ -7,13 +7,17 @@ OUTPUT_FILE="app.apk"
 
 CONFIGURE="false"
 
-show_help() {
+show_full_help() {
     echo "usage: buildapk [-d input dir][-o output dir][-f output file][-j android jar]"
     echo 
     echo "Compile and package android applications."
     echo "Example:"
     echo " - buildapk -d /sdcard/app -o build -f lol.apk -j /sdcard/lol/android.jar"
     echo "(None of the aguments required - just execute from same dir as AndroidManifest.xml"
+}
+
+show_help() {
+    echo "usage: buildapk [-d input dir][-o output dir][-f output file][-j android jar]"
 }
 
 set_in_directory() {
@@ -99,17 +103,21 @@ echo "#########################"
 echo "       Configuring       "
 echo "#########################"
 
-while getopts ":d:o:f:j:" o; do
+while getopts ":h:d:o:f:j:" o; do
     case "${o}" in
+        h)
+            show_full_help;;
         d)
             set_in_directory ${OPTARG};;
         o)
             set_out_directory ${OPTARG};;
         f)
             set_out_file ${OPTARG};;
+        j)
+            set_jar_path ${OPTARG};;
         *)
             echo "Invalid option $1"
-            short_help
+            show_help
             exit 1;;
     esac
 done
