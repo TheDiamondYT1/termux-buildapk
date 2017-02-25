@@ -5,29 +5,42 @@ INPUT_DIR=$(pwd)
 OUTPUT_DIR="gen"
 OUTPUT_FILE="app.apk"
 
-show_usage() {
-    echo "usage: buildapk [-d input dir][-o output dir][-f output file]"
+CONFIGURE="false"
+
+show_help() {
+    echo "usage: buildapk [-d input dir][-o output dir][-f output file][-j android jar]"
+    echo 
     echo "Compile and package android applications."
     echo "Example:"
-    echo " - buildapk -d /sdcard/app -o build -f lol.apk"
+    echo " - buildapk -d /sdcard/app -o build -f lol.apk -j /sdcard/lol/android.jar"
     echo "(None of the aguments required - just execute from same dir as AndroidManifest.xml"
 }
 
 set_in_directory() {
+    CONFIGURE="true"
     echo -n "Setting input directory to $1..."
     INPUT_DIR=$1
     echo "done"
 }
 
 set_out_directory() {
+    CONFIGURE="true"
     echo -n "Setting output directory to $1..."
     OUTPUT_DIR=$1
     echo "done"
 }
 
 set_out_file() {
+    CONFIGURE="true"
     echo -n "Setting output file name to $1..."
     OUTPUT_FILE=$1
+    echo "done"
+}
+
+set_jar_path() {
+    CONFIGURE="true"
+    echo -n "Setting path of android.jar to $1..."
+    ANDROID_JAR=$1
     echo "done"
 }
    
@@ -49,10 +62,15 @@ do_build() {
     fi
     mkdir $OUTPUT_DIR/build
     
+    echo "#########################"
+    echo "     Starting Build      "
+    echo "#########################"
+    
     echo -n "Creating R.java..."
     if [ ! -f "$INPUT_DIR/AndroidManifest.xml" ]; then
         echo "fail"
         echo "Error: not an app project. Aborting..."
+        rm -rf $OUTPUT_DIR
         exit 1
     fi
     aapt package -m -J $OUTPUT_DIR/build -M ./AndroidManifest.xml -S res -I $ANDROID_JAR
@@ -76,12 +94,29 @@ do_build() {
     echo "https://github.com/TheDiamondYT1/termux-buildapk"
 }
 
-while true; do
-    case "$1" in
-        -h|--help) show_usage; exit 0;;
-        -d|--directory) set_in_directory $2; ;;
-        -o|--output) set_out_directory $2; ;;
-        -f|--file) set_out_file $2; ;;
-        *) do_build; ;;
+echo
+echo "#########################"
+echo "       Configuring       "
+echo "#########################"
+
+while getopts ":d:o:f:j:" o; do
+    case "${o}" in
+        d)
+            set_in_directory ${OPTARG};;
+        o)
+            set_out_directory ${OPTARG};;
+        f)
+            set_out_file ${OPTARG};;
+        *)
+            echo "Invalid option $1"
+            short_help
+            exit 1;;
     esac
 done
+
+if [ $CONFIGURE = "false" ]; then
+    echo "Nothing to configure."
+fi
+
+echo 
+do_build
