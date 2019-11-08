@@ -48,7 +48,8 @@ do_build() {
     fi
     
     type aapt > /dev/null || { echo >&2 "Error: Please install 'aapt'. Aborting..."; exit 1; }
-    type jack > /dev/null || { echo >&2 "Error: Please install 'jack'. Aborting..."; exit 1; }
+    type ecj > /dev/null || { echo >&2 "Error: Please install 'ecj'. Aborting..."; exit 1; }
+    type dx > /dev/null || { echo >&2 "Error: Please install 'dx'. Aborting..."; exit 1; }
     type apksigner > /dev/null || { echo >&2 "Error: Please install 'apksigner'. Aborting..."; exit 1; }
     
     if [ ! -d $OUTPUT_DIR ]; then
@@ -79,8 +80,14 @@ do_build() {
     aapt package -m -J $OUTPUT_DIR/build -M ./AndroidManifest.xml -S res -I $ANDROID_JAR
     echo "done"
      
-    echo -n "Compilng and dexing source files..."
-    jack --output-dex $OUTPUT_DIR/build
+    echo -n "Compiling and dexing source files..."
+    dir="$(dirname "$(realpath "$OUTPUT_DIR/build")")"
+    name="$(basename "$OUTPUT_DIR/build" .java)"
+    tempdir="$dir/tmp$RANDOM"
+    
+    ecj -sourcepath $dir $dir/${name}.java -d $tempdir 
+    dx --dex --output=$OUTPUT_DIR/build *
+    rm -rf $tempdir
     echo "done"
     
     echo -n "Creating apk and adding dexed classes..."
