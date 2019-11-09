@@ -81,13 +81,11 @@ do_build() {
     echo "done"
      
     echo -n "Compiling and dexing source files..."
-    dir="$(dirname "$(realpath "$OUTPUT_DIR/build")")"
-    name="$(basename "$OUTPUT_DIR/build" .java)"
-    tempdir="$dir/tmp$RANDOM"
+    TEMP_DIR="$dir/tmp$RANDOM"
     
-    ecj -sourcepath $dir $dir/${name}.java -d $tempdir 
+    ecj -sourcepath $OUTPUT_DIR $OUTPUT_DIR/build -d $TEMP_DIR
     dx --dex --output=$OUTPUT_DIR/build *
-    rm -rf $tempdir
+    rm -rf $TEMP_DIR
     echo "done"
     
     echo -n "Creating apk and adding dexed classes..."
